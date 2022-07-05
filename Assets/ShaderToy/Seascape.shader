@@ -77,9 +77,6 @@ Shader "KM/Seascape"
 
             int AA;
 
-
-            float2x2 octave_m = float2x2(1.6, 1.2, -1.2, 1.6);
-
             CBUFFER_END
 
 
@@ -152,6 +149,9 @@ Shader "KM/Seascape"
                 float choppy = SEA_CHOPPY;
 
                 float2 uv = p.xz;
+                
+
+            float2x2 octave_m = float2x2(1.6, 1.2, -1.2, 1.6);
                 // why
                 uv.x *= 0.75;
                 float d, h = 0.0;
@@ -175,6 +175,8 @@ Shader "KM/Seascape"
 
             float map_detailed(float3 p)
             {
+
+            float2x2 octave_m = float2x2(1.6, 1.2, -1.2, 1.6);
                 float freq = SEA_FREQ;
                 float amp = SEA_HEIGHT;
                 float choppy = SEA_CHOPPY;
@@ -344,8 +346,6 @@ Shader "KM/Seascape"
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 
                 float2 screenUV = input.positionHCS;
-
-                octave_m = float2x2(1.6, -1.2, 1.2, 1.6);
 
                 return mainImage(screenUV);
             }
