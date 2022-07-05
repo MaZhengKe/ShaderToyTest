@@ -24,11 +24,12 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Ints: []
+    m_Ints:
+    - AA: 0
     m_Floats:
     - ITER_FRAGMENT: 5
     - ITER_GEOMETRY: 3
-    - NUM_STEPS: 8
+    - NUM_STEPS: 5
     - SEA_CHOPPY: 4
     - SEA_CHOPPYT: 4
     - SEA_FREQ: 0.16
@@ -39,6 +40,9 @@ Material:
     m_Colors:
     - SEA_BASE: {r: 0, g: 0.09, b: 0.18, a: 1}
     - SEA_WATER_COLOR: {r: 0.48, g: 0.54, b: 0.36, a: 1}
+    - _ang: {r: 0, g: 0.06, b: 0, a: 0}
     - _iMouse: {r: 0, g: 0, b: 0, a: 0}
     - _iResolution: {r: 1024, g: 1024, b: 0, a: 0}
+    - _lightDir: {r: 0, g: 5.16, b: 0.8, a: 1}
+    - _ori: {r: 39.56, g: 8.56, b: -78.25, a: 0}
   m_BuildTextureStacks: []
