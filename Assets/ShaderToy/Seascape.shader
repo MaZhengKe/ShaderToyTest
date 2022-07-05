@@ -2,23 +2,23 @@ Shader "KM/Seascape"
 {
     Properties
     {
-        [MainTexture] _BaseMap("Base Map", 2D) = "white"
+
+        SEA_BASE("基础颜色", Color) = (0.0,0.09,0.18,1)
+        SEA_WATER_COLOR("水颜色", Color) = (0.48,0.54,0.36,1)
+
         _iResolution("iResolution", vector) = (1,1,0,0)
         _iMouse("_iMouse", vector) = (0,0,0,0)
 
 
-
+        NUM_STEPS("采样步数",int) = 8
         ITER_GEOMETRY("ITER_GEOMETRY",int) = 3
         ITER_FRAGMENT ("ITER_FRAGMENT",int) = 5
 
-        SEA_HEIGHT("SEA_HEIGHT",float) = 0.6
-        SEA_CHOPPYT("SEA_CHOPPYT",float) = 4.0
-        SEA_SPEEDT("SEA_SPEEDT",float) = 0.8
-        SEA_FREQT("SEA_FREQT",float) = 0.16
+        SEA_HEIGHT("海高度",range(0,1)) = 0.6
+        SEA_CHOPPY("海浪",range(0,10)) = 4.0
+        SEA_SPEED("海浪速度",range(0,1)) = 0.8
+        SEA_FREQ("海浪频率",range(0,0.5)) = 0.16
 
-
-        SEA_BASE("SEA_BASE", vector) = (0.0,0.09,0.18)
-        SEA_WATER_COLOR("SEA_WATER_COLOR", vector) = (0.48,0.54,0.36)
 
         //float2x2 octave_m = float2x2(1.6,1.2,-1.2,1.6);
     }
@@ -41,6 +41,8 @@ Shader "KM/Seascape"
             #pragma  vertex vert
             #pragma  fragment frag
 
+            #define AA
+
             #define iGlobalTime   _Time.y
             #define iTime   _Time.y
             #define iResolution   _iResolution
@@ -50,15 +52,12 @@ Shader "KM/Seascape"
 
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-            TEXTURE2D_X(_BaseMap);
-            SAMPLER(sampler_BaseMap);
-
-
+            
             CBUFFER_START(UnityPerMaterial)
             float4 _iResolution;
             float4 _iMouse;
-            float4 _BaseMap_ST;
 
+            int NUM_STEPS = 8;
             int ITER_GEOMETRY = 3;
             int ITER_FRAGMENT = 5;
             float SEA_HEIGHT = 0.6;
@@ -71,9 +70,6 @@ Shader "KM/Seascape"
             float2x2 octave_m = float2x2(1.6, 1.2, -1.2, 1.6);
 
             CBUFFER_END
-
-
-            const int NUM_STEPS = 8;
 
 
             //#define AA
@@ -164,7 +160,8 @@ Shader "KM/Seascape"
                     d += sea_octave((uv - SEA_TIME) * freq, choppy);
                     h += d * amp;
                     //uv *= octave_m;
-                    uv = mul(octave_m, uv);
+                    //uv = mul(octave_m, uv);
+                    uv = mul(uv, octave_m);
                     freq *= 1.9;
                     amp *= 0.22;
                     choppy = lerp(choppy, 1.0, 0.2);
@@ -187,6 +184,7 @@ Shader "KM/Seascape"
                     h += d * amp;
                     //uv *= octave_m;
                     uv = mul(octave_m, uv);
+                    // uv = mul(uv, octave_m);
                     freq *= 1.9;
                     amp *= 0.22;
                     choppy = lerp(choppy, 1.0, 0.2);
@@ -281,14 +279,16 @@ Shader "KM/Seascape"
                 // return;
                 float time = iTime * 0.3 + iMouse.x * 0.01;
                 #ifdef AA
-    float3 color = float3(0.0,0.0,0.0);
-    for(int i = -1; i <= 1; i++) {
-        for(int j = -1; j <= 1; j++) {
-        	float2 uv = fragCoord+float2(i,j)/3.0;
-    		color += getPixel(uv, time);
-        }
-    }
-    color /= 9.0;
+                float3 color = float3(0.0, 0.0, 0.0);
+                for (int i = -1; i <= 1; i++)
+                {
+                    for (int j = -1; j <= 1; j++)
+                    {
+                        float2 uv = fragCoord + float2(i, j) / 3.0;
+                        color += getPixel(uv, time);
+                    }
+                }
+                color /= 9.0;
                 #else
                 float3 color = getPixel(fragCoord, time);
                 #endif
@@ -328,12 +328,11 @@ Shader "KM/Seascape"
 
                 float2 screenUV = input.positionHCS / _ScreenParams;
 
-                //float2 UV = float2(input.uv.y,input.uv.x)*1000;
-                float2 UV = float2(input.uv.x, input.uv.y) * 1000;
+                float2 UV = float2(input.uv.x, input.uv.y) * 1024;
                 float4 color;
-                
+
                 octave_m = float2x2(1.6, -1.2, 1.2, 1.6);
-                
+
                 // return float4(octave_m[0],0,1);
                 mainImage(color, UV);
                 return color;
